@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model category {
+  category_id   String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  category_name String        @db.VarChar(255)
+  user_id       String?       @db.Uuid
+  users         users?        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  item          item[]
+  subcategory   subcategory[]
+}
+
+model item {
+  item_id        String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  item_name      String       @db.VarChar(255)
+  category_id    String?      @db.Uuid
+  subcategory_id String?      @db.Uuid
+  user_id        String?      @db.Uuid
+  category       category?    @relation(fields: [category_id], references: [category_id], onDelete: NoAction, onUpdate: NoAction)
+  subcategory    subcategory? @relation(fields: [subcategory_id], references: [subcategory_id], onDelete: NoAction, onUpdate: NoAction)
+  users          users?       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model subcategory {
+  subcategory_id   String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  subcategory_name String    @db.VarChar(255)
+  category_id      String?   @db.Uuid
+  item             item[]
+  category         category? @relation(fields: [category_id], references: [category_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id       String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email    String     @db.VarChar(255)
+  password String     @db.VarChar(255)
+  fname    String?    @db.VarChar(100)
+  lname    String?    @db.VarChar(100)
+  category category[]
+  item     item[]
+}
